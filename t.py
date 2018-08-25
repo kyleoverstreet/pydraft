@@ -13,8 +13,16 @@ class MultiColumnListbox(object):
 
     def __init__(self):
         self.tree = None
-        self._setup_widgets()
         #self._build_available_tree()
+
+        self.my_picked_counter = 0
+        self.my_picked_players = []
+        for i in range(6):
+            self.my_picked_players.append(tk.StringVar())
+            self.my_picked_players[i].set("")
+
+
+        self._setup_widgets()
 
     def _setup_widgets(self):
         container = ttk.Frame()
@@ -42,17 +50,43 @@ class MultiColumnListbox(object):
         self.dst_button = ttk.Button(text="DST", command=lambda: self._available_players(dst))
         self.dst_button.place(x=600, y=0)
 
+        self.pick_button = ttk.Button(text="Pick", command=lambda: self._show_selection())
+        self.pick_button.place(x=600, y=600)
+
+        # labels
+        self.available_label = ttk.Label(text="Available players")
+        self.available_label.place(x=10, y=80)
+
+        self.my_team = ttk.Label(text="My team")
+        self.my_team.place(x=10, y=350)
+
+        self.labels = []
+        for i in range(6):
+            self.labels.append(ttk.Label(textvariable=self.my_picked_players[i]))
+            self.labels[i].place(x=10, y=370+20*i)
+
+
+        #self.chosen_label = ttk.Label(textvariable=self.selected).place(x=10, y=700)
+
+
+
         # create a treeview with dual scrollbars
         self.tree = ttk.Treeview(columns=header, show="headings")
         vsb = ttk.Scrollbar(orient="vertical", command=self.tree.yview)
         hsb = ttk.Scrollbar(orient="horizontal", command=self.tree.xview)
-        #self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
-        #self.tree.grid(column=0, row=0, sticky='nsew', in_=container)
-        self.tree.grid(column=0, row=0, in_=container)
+        self.tree.place(x=0, y=100)
         vsb.grid(column=1, row=0, sticky='ns', in_=container)
         hsb.grid(column=0, row=1, sticky='ew', in_=container)
         container.grid_columnconfigure(0, weight=1)
         container.grid_rowconfigure(0, weight=1)
+
+        self._available_players(all_pos)
+
+    def _show_selection(self):
+        selected_player = self.tree.item(self.tree.selection())['values'][1]
+        self.my_picked_players[self.my_picked_counter].set(selected_player)
+        self.tree.delete(self.tree.selection())
+        self.my_picked_counter = self.my_picked_counter + 1
 
     def _available_players(self, pos):
         self.tree.delete(*self.tree.get_children())
@@ -61,6 +95,7 @@ class MultiColumnListbox(object):
             # adjust the column's width to the header string
             self.tree.column(col, width=tkFont.Font().measure(col.title()))
         self.tree.column('Player', width=120)
+        self.tree.column('Pos', width=60)
 
         for player in pos:
             self.tree.insert('', 'end', values=player)
@@ -134,6 +169,6 @@ group_by_position(rankings)
 if __name__ == '__main__':
     root = tk.Tk()
     root.title("Pydraft")
-    root.geometry("800x800")
+    root.geometry("1200x800")
     listbox = MultiColumnListbox()
     root.mainloop()
