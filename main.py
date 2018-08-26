@@ -28,4 +28,4 @@ for row in data.itertuples():
     if "DST" in row.Pos:
         dst.append(row)
 
-print(qb)
+print(all[0][0])
