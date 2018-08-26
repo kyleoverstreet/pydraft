@@ -25,60 +25,29 @@ class MultiColumnListbox(object):
         container = ttk.Frame()
         container.pack(fill='both', expand=True)
 
-        self.all_button = tk.Button(text="All", command=lambda: self._available_players(available_all), width=5)
-        self.all_button.place(x=0, y=0)
+        tk.Button(text="All", command=lambda: self.show_available(available_all), width=5).place(x=0, y=0)
+        tk.Button(text="QB", command=lambda: self.show_available(available_qb), width=5).place(x=60, y=0)
+        tk.Button(text="RB", command=lambda: self.show_available(available_rb), width=5).place(x=120, y=0)
+        tk.Button(text="WR", command=lambda: self.show_available(available_wr), width=5).place(x=180, y=0)
+        tk.Button(text="TE", command=lambda: self.show_available(available_te), width=5).place(x=240, y=0)
+        tk.Button(text="Flex", command=lambda: self.show_available(available_flex), width=5).place(x=300, y=0)
+        tk.Button(text="K", command=lambda: self.show_available(available_k), width=5).place(x=360, y=0)
+        tk.Button(text="DST", command=lambda: self.show_available(available_dst), width=5).place(x=420, y=0)
 
-        self.qb_button = tk.Button(text="QB", command=lambda: self._available_players(available_qb), width=5)
-        self.qb_button.place(x=60, y=0)
-
-        self.rb_button = tk.Button(text="RB", command=lambda: self._available_players(available_rb), width=5)
-        self.rb_button.place(x=120, y=0)
-
-        self.wr_button = tk.Button(text="WR", command=lambda: self._available_players(available_wr), width=5)
-        self.wr_button.place(x=180, y=0)
-
-        self.te_button = tk.Button(text="TE", command=lambda: self._available_players(available_te), width=5)
-        self.te_button.place(x=240, y=0)
-
-        self.te_button = tk.Button(text="Flex", command=lambda: self._available_players(available_flex), width=5)
-        self.te_button.place(x=300, y=0)
-
-        self.k_button = tk.Button(text="K", command=lambda: self._available_players(available_k), width=5)
-        self.k_button.place(x=360, y=0)
-
-        self.dst_button = tk.Button(text="DST", command=lambda: self._available_players(available_dst), width=5)
-        self.dst_button.place(x=420, y=0)
-
-        s = ttk.Style()
-        s.configure('my.Treeview', font=(None, 8))
-
-        style = ttk.Style()
-        style.configure("Treeview.Heading", font=(None, 8))
+        ttk.Style().configure('my.Treeview', font=(None, 8))
+        ttk.Style().configure("Treeview.Heading", font=(None, 8))
 
         # create and populate the 'available players' tree view
-        self.available_label = ttk.Label(text="Available players").place(x=10, y=30)
+        ttk.Label(text="Available players").place(x=10, y=30)
         self.tree = ttk.Treeview(columns=header, show="headings", height=16, style='my.Treeview')
-
-        self.tree.bind("<Double-1>", self.OnDoubleClick)
-
-        vsb = ttk.Scrollbar(orient="vertical", command=self.tree.yview)
-        hsb = ttk.Scrollbar(orient="horizontal", command=self.tree.xview)
+        self.tree.bind("<Double-1>", self.on_double_click)
         self.tree.place(x=0, y=50)
-        vsb.grid(column=1, row=0, sticky='ns', in_=container)
-        hsb.grid(column=0, row=1, sticky='ew', in_=container)
-        container.grid_columnconfigure(0, weight=1)
-        container.grid_rowconfigure(0, weight=1)
-        self._available_players(available_all)
+        self.show_available(available_all)
 
         # create 'my team' tree view
+        self.my_team_label = ttk.Label(text="My team").place(x=510, y=30)
         self.my_team = ttk.Treeview(columns=header, show="headings", height=16, style='my.Treeview')
-        self.my_team.place(x=700, y=50)
-        vsb = ttk.Scrollbar(orient="vertical", command=self.tree.yview)
-        hsb = ttk.Scrollbar(orient="horizontal", command=self.tree.xview)
-        vsb.grid(column=1, row=0, sticky='ns', in_=container)
-        hsb.grid(column=0, row=1, sticky='ew', in_=container)
-        container.grid_columnconfigure(0, weight=1)
-        container.grid_rowconfigure(0, weight=1)
+        self.my_team.place(x=500, y=50)
 
         for col in header:
             self.my_team.heading(col, text=col.title(), command=lambda c=col: sort_by(self.my_team, c, 0))
@@ -88,41 +57,36 @@ class MultiColumnListbox(object):
 
         # create and populate all team tree views
         self.team_trees = []
-
         for i in range(12):
             self.team_trees.append(ttk.Treeview(columns='Player', show="headings", height=16, style='my.Treeview'))
-            self.team_trees[i].place(x=0+105*i, y=450)
-            vsb.grid(column=1, row=0, sticky='ns', in_=container)
-            hsb.grid(column=0, row=1, sticky='ew', in_=container)
-            container.grid_columnconfigure(0, weight=1)
-            container.grid_rowconfigure(0, weight=1)
+            self.team_trees[i].place(x=0+105*i, y=415)
             self.team_trees[i].heading('Player', text=draft_order[i])
             self.team_trees[i].column('Player', width=105)
 
-        self.team_trees[0].bind("<Double-1>", self.Undo_Team0)
-        #self.team_trees[1].bind("<Double-1>", self.Undo_Team1#)
-        #self.team_trees[2].bind("<Double-1>", self.Undo_Team2)
-        #self.team_trees[3].bind("<Double-1>", self.Undo_Team3)
-        #self.team_trees[4].bind("<Double-1>", self.Undo_Team4)
-        #self.team_trees[5].bind("<Double-1>", self.Undo_Team5)
-        #self.team_trees[6].bind("<Double-1>", self.Undo_Team6)
-        #self.team_trees[7].bind("<Double-1>", self.Undo_Team7)
-        #self.team_trees[8].bind("<Double-1>", self.Undo_Team8)
-        #self.team_trees[9].bind("<Double-1>", self.Undo_Team9)
-        #self.team_trees[10].bind("<Double-1>", self.Undo_Team10)
-        #self.team_trees[11].bind("<Double-1>", self.Undo_Team11)
-
+        self.team_trees[0].bind("<Double-1>", lambda x: self.undo_player(0))
+        self.team_trees[1].bind("<Double-1>", lambda x: self.undo_player(1))
+        self.team_trees[2].bind("<Double-1>", lambda x: self.undo_player(2))
+        self.team_trees[3].bind("<Double-1>", lambda x: self.undo_player(3))
+        self.team_trees[4].bind("<Double-1>", lambda x: self.undo_player(4))
+        self.team_trees[5].bind("<Double-1>", lambda x: self.undo_player(5))
+        self.team_trees[6].bind("<Double-1>", lambda x: self.undo_player(6))
+        self.team_trees[7].bind("<Double-1>", lambda x: self.undo_player(7))
+        self.team_trees[8].bind("<Double-1>", lambda x: self.undo_player(8))
+        self.team_trees[9].bind("<Double-1>", lambda x: self.undo_player(9))
+        self.team_trees[10].bind("<Double-1>", lambda x: self.undo_player(10))
+        self.team_trees[11].bind("<Double-1>", lambda x: self.undo_player(11))
 
     def snake(self, lower, upper):
         return cycle(chain(range(lower, upper + 1), range(upper, lower - 1, -1)))
 
-    def OnDoubleClick(self, event):
-        self._pick_player()
+    def on_double_click(self, event):
+        self.pick_player()
 
-    def Undo_Team0(self, event):
-        selected_player = self.team_trees[0].item(self.team_trees[0].selection())['values']
-        self.team_trees[0].delete(self.team_trees[0].selection())
+    def undo_player(self, team):
+        selected_player = self.team_trees[team].item(self.team_trees[team].selection())['values']
+        self.team_trees[team].delete(self.team_trees[team].selection())
 
+        # grabbing all values for player we will be re-inserting into the available player tree view
         i = 0
         for player in all:
             if selected_player[0] == player[1]:
@@ -130,20 +94,83 @@ class MultiColumnListbox(object):
             else:
                 i = i + 1
 
+        self.insert_into_available_all(insert_player)
+        self.insert_into_available_pos(insert_player)
+
+    def insert_into_available_all(self, insert_player):
+        # find the correct index to insert the player into
+        j = 0
         j = 0
         for player in available_all:
             if insert_player[0] < player[0]:
                 available_all.insert(j, insert_player)
-                self._available_players(available_all)
+                self.show_available(available_all)
                 return
             else:
                 j = j + 1
 
+    def insert_into_available_pos(self, insert_player):
+        idx = 0
+        if insert_player[3].startswith('QB'):
+            for player in available_qb:
+                if insert_player[0] < player[0]:
+                    available_qb.insert(idx, insert_player)
+                    self.show_available(all)
+                    return
+                else:
+                    idx = idx + 1
 
-        #self.tree.insert('', 0, value=selected_player)
-        #self.team_trees[0].delete(self.team_trees[0].selection())
+        if insert_player[3].startswith('RB'):
+            for player in available_rb:
+                print(player)
+                if insert_player[0] < player[0]:
+                    available_rb.insert(idx, insert_player)
+                    self.show_available(available_all)
+                    self.insert_into_available_flex(insert_player)
+                    return
+                else:
+                    idx = idx + 1
 
-    def _pick_player(self):
+        if insert_player[3].startswith('WR'):
+            for player in available_wr:
+                if insert_player[0] < player[0]:
+                    available_wr.insert(idx, insert_player)
+                    self.show_available(available_all)
+                    self.insert_into_available_flex(insert_player)
+                    return
+                else:
+                    idx = idx + 1
+
+        if insert_player[3].startswith('TE'):
+            for player in available_te:
+                if insert_player[0] < player[0]:
+                    available_te.insert(idx, insert_player)
+                    self.show_available(available_te)
+                    self.insert_into_available_flex(insert_player)
+                    return
+                else:
+                    idx = idx + 1
+
+        if insert_player[3].startswith('TE'):
+            for player in available_qb:
+                if insert_player[0] < player[0]:
+                    available_qb.insert(idx, insert_player)
+                    self.show_available(available_qb)
+                    return
+                else:
+                    idx = idx + 1
+
+    def insert_into_available_flex(self, insert_player):
+        idx = 0
+        for player in available_flex:
+            if insert_player[0] < player[0]:
+                available_flex.insert(idx, insert_player)
+                self.show_available(available_all)
+                return
+            else:
+                idx = idx + 1
+
+    def pick_player(self):
         # get selected player
         selected_player = self.tree.item(self.tree.selection())['values']
 
@@ -192,7 +219,7 @@ class MultiColumnListbox(object):
         # insert player to team's tree view
         self.picking_team = self.draft_cycle[self.pick_number]
 
-        self.tag = self.set_color_tag(selected_player)
+        self.tag = self.set_color_tag(selected_player, False)
         self.team_trees[self.picking_team].insert('', 'end', values=(selected_player[1],), tag=self.tag)
         self.team_trees[self.picking_team].tag_configure(self.tag, background=self.tag)
         self.team_trees[self.picking_team].tag_configure('gold', background='gold')
@@ -209,7 +236,16 @@ class MultiColumnListbox(object):
         self.team_trees[self.picking_team].tag_configure('pink', background='hot pink')
 
         if self.picking_team == my_draft_position:
-            self.my_team.insert('', 'end', text=selected_player, tag=self.tag)
+            self.my_team.insert('', 'end', values=selected_player, tag=self.tag)
+
+            if selected_player[3].startswith('RB'):
+                my_rb_byes.append(selected_player[4])
+                self.show_available(available_all)
+
+            if selected_player[3].startswith('WR'):
+                my_wr_byes.append(selected_player[4])
+                self.show_available(available_all)
+
             self.my_team.tag_configure(self.tag, background=self.tag)
             self.my_team.tag_configure('gold', background='gold')
             self.my_team.tag_configure('salmon', background='salmon')
@@ -227,14 +263,19 @@ class MultiColumnListbox(object):
 
         self.pick_number = self.pick_number + 1
 
+
     # set color based on player's position
-    def set_color_tag(self, player):
+    def set_color_tag(self, player, check_byes):
         if player[3].startswith('QB'):
             tag = 'gold'
         elif player[3].startswith('RB'):
             tag = 'salmon'
+            if check_byes and str(player[4]) in my_rb_byes:
+                tag = 'salmon_bold'
         elif player[3].startswith('WR'):
             tag = 'LightBlue3'
+            if check_byes and str(player[4]) in my_wr_byes:
+                tag = 'LightBlue3_bold'
         elif player[3].startswith('TE'):
             tag = 'pale green'
         elif player[3].startswith('K'):
@@ -243,9 +284,8 @@ class MultiColumnListbox(object):
             tag = 'hot pink'
         return tag
 
-
     # show available players for the selected position(s)
-    def _available_players(self, pos):
+    def show_available(self, pos):
         self.tree.delete(*self.tree.get_children())
         for col in header:
             self.tree.heading(col, text=col.title(), command=lambda c=col: sort_by(self.tree, c, 0))
@@ -254,8 +294,7 @@ class MultiColumnListbox(object):
         self.tree.column('Pos', width=60)
 
         for player in pos:
-            self.tree.insert('', 'end', values=player, tags=self.set_color_tag(player))
-
+            self.tree.insert('', 'end', values=player, tags=self.set_color_tag(player, True))
             # adjust column's width if necessary to fit each value
             for i, val in enumerate(player):
                 if i > 1:
@@ -276,6 +315,10 @@ class MultiColumnListbox(object):
         self.tree.tag_configure('green', background='pale green')
         self.tree.tag_configure('light', background='light slate blue')
         self.tree.tag_configure('pink', background='hot pink')
+
+        customfont = tkFont.Font(size=8, weight=tkFont.BOLD, slant=tkFont.ITALIC)
+        self.tree.tag_configure('salmon_bold', background='salmon', font=customfont)
+        self.tree.tag_configure('LightBlue3_bold', background='LightBlue3', font=customfont)
 
 
 def group_by_position(data):
@@ -358,6 +401,9 @@ available_all, available_qb, available_rb, available_wr, available_te, available
     available_k, available_dst = ([] for _ in range(8))
 
 all, qb, rb, wr, te, flex, k, dst = ([] for _ in range(8))
+
+my_rb_byes = []
+my_wr_byes = []
 
 removed_all = []
 
