@@ -40,7 +40,7 @@ class MultiColumnListbox(object):
         # create and populate the 'available players' tree view
         ttk.Label(text="Available players").place(x=10, y=30)
         self.tree = ttk.Treeview(columns=header, show="headings", height=16, style='my.Treeview')
-        self.tree.bind("<Double-1>", self.on_double_click)
+        self.tree.bind("<Double-1>", lambda x: self.pick_player())
         self.tree.place(x=0, y=50)
         self.show_available(available_all)
 
@@ -60,117 +60,48 @@ class MultiColumnListbox(object):
         for i in range(12):
             self.team_trees.append(ttk.Treeview(columns='Player', show="headings", height=16, style='my.Treeview'))
             self.team_trees[i].place(x=0+105*i, y=415)
-            self.team_trees[i].heading('Player', text=draft_order[i])
             self.team_trees[i].column('Player', width=105)
 
+        self.team_trees[0].heading('Player', text=draft_order[0], command=lambda c=col: self.pick_player(0))
         self.team_trees[0].bind("<Double-1>", lambda x: self.undo_player(0))
+
+        self.team_trees[1].heading('Player', text=draft_order[1], command=lambda c=col: self.pick_player(1))
         self.team_trees[1].bind("<Double-1>", lambda x: self.undo_player(1))
+
+        self.team_trees[2].heading('Player', text=draft_order[2], command=lambda c=col: self.pick_player(2))
         self.team_trees[2].bind("<Double-1>", lambda x: self.undo_player(2))
+
+        self.team_trees[3].heading('Player', text=draft_order[3], command=lambda c=col: self.pick_player(3))
         self.team_trees[3].bind("<Double-1>", lambda x: self.undo_player(3))
+
+        self.team_trees[4].heading('Player', text=draft_order[4], command=lambda c=col: self.pick_player(4))
         self.team_trees[4].bind("<Double-1>", lambda x: self.undo_player(4))
+
+        self.team_trees[5].heading('Player', text=draft_order[5], command=lambda c=col: self.pick_player(5))
         self.team_trees[5].bind("<Double-1>", lambda x: self.undo_player(5))
+
+        self.team_trees[6].heading('Player', text=draft_order[6], command=lambda c=col: self.pick_player(6))
         self.team_trees[6].bind("<Double-1>", lambda x: self.undo_player(6))
+
+        self.team_trees[7].heading('Player', text=draft_order[7], command=lambda c=col: self.pick_player(7))
         self.team_trees[7].bind("<Double-1>", lambda x: self.undo_player(7))
+
+        self.team_trees[8].heading('Player', text=draft_order[8], command=lambda c=col: self.pick_player(8))
         self.team_trees[8].bind("<Double-1>", lambda x: self.undo_player(8))
+
+        self.team_trees[9].heading('Player', text=draft_order[9], command=lambda c=col: self.pick_player(9))
         self.team_trees[9].bind("<Double-1>", lambda x: self.undo_player(9))
+
+        self.team_trees[10].heading('Player', text=draft_order[10], command=lambda c=col: self.pick_player(10))
         self.team_trees[10].bind("<Double-1>", lambda x: self.undo_player(10))
+
+        self.team_trees[11].heading('Player', text=draft_order[11], command=lambda c=col: self.pick_player(11))
         self.team_trees[11].bind("<Double-1>", lambda x: self.undo_player(11))
 
     def snake(self, lower, upper):
         return cycle(chain(range(lower, upper + 1), range(upper, lower - 1, -1)))
 
-    def on_double_click(self, event):
-        self.pick_player()
-
-    def undo_player(self, team):
-        selected_player = self.team_trees[team].item(self.team_trees[team].selection())['values']
-        self.team_trees[team].delete(self.team_trees[team].selection())
-
-        # grabbing all values for player we will be re-inserting into the available player tree view
-        i = 0
-        for player in all:
-            if selected_player[0] == player[1]:
-                insert_player = all[i]
-            else:
-                i = i + 1
-
-        self.insert_into_available_all(insert_player)
-        self.insert_into_available_pos(insert_player)
-
-    def insert_into_available_all(self, insert_player):
-        # find the correct index to insert the player into
-        j = 0
-        j = 0
-        for player in available_all:
-            if insert_player[0] < player[0]:
-                available_all.insert(j, insert_player)
-                self.show_available(available_all)
-                return
-            else:
-                j = j + 1
-
-    def insert_into_available_pos(self, insert_player):
-        idx = 0
-        if insert_player[3].startswith('QB'):
-            for player in available_qb:
-                if insert_player[0] < player[0]:
-                    available_qb.insert(idx, insert_player)
-                    self.show_available(all)
-                    return
-                else:
-                    idx = idx + 1
-
-        if insert_player[3].startswith('RB'):
-            for player in available_rb:
-                print(player)
-                if insert_player[0] < player[0]:
-                    available_rb.insert(idx, insert_player)
-                    self.show_available(available_all)
-                    self.insert_into_available_flex(insert_player)
-                    return
-                else:
-                    idx = idx + 1
-
-        if insert_player[3].startswith('WR'):
-            for player in available_wr:
-                if insert_player[0] < player[0]:
-                    available_wr.insert(idx, insert_player)
-                    self.show_available(available_all)
-                    self.insert_into_available_flex(insert_player)
-                    return
-                else:
-                    idx = idx + 1
-
-        if insert_player[3].startswith('TE'):
-            for player in available_te:
-                if insert_player[0] < player[0]:
-                    available_te.insert(idx, insert_player)
-                    self.show_available(available_te)
-                    self.insert_into_available_flex(insert_player)
-                    return
-                else:
-                    idx = idx + 1
-
-        if insert_player[3].startswith('TE'):
-            for player in available_qb:
-                if insert_player[0] < player[0]:
-                    available_qb.insert(idx, insert_player)
-                    self.show_available(available_qb)
-                    return
-                else:
-                    idx = idx + 1
-
-    def insert_into_available_flex(self, insert_player):
-        idx = 0
-        for player in available_flex:
-            if insert_player[0] < player[0]:
-                available_flex.insert(idx, insert_player)
-                self.show_available(available_all)
-                return
-            else:
-                idx = idx + 1
-
-    def pick_player(self):
+    def pick_player(self, team=-1):
         # get selected player
         selected_player = self.tree.item(self.tree.selection())['values']
 
@@ -217,7 +148,11 @@ class MultiColumnListbox(object):
         self.tree.delete(self.tree.selection())
 
         # insert player to team's tree view
-        self.picking_team = self.draft_cycle[self.pick_number]
+        if team == -1:
+            self.picking_team = self.draft_cycle[self.pick_number]
+            self.pick_number = self.pick_number + 1
+        else:
+            self.picking_team = team
 
         self.tag = self.set_color_tag(selected_player, False)
         self.team_trees[self.picking_team].insert('', 'end', values=(selected_player[1],), tag=self.tag)
@@ -261,10 +196,9 @@ class MultiColumnListbox(object):
             self.my_team.tag_configure('light', background='light slate blue')
             self.my_team.tag_configure('pink', background='hot pink')
 
-        self.pick_number = self.pick_number + 1
+        #self.pick_number = self.pick_number + 1
 
-
-    # set color based on player's position
+    # set color/font based on player's position and bye week
     def set_color_tag(self, player, check_byes):
         if player[3].startswith('QB'):
             tag = 'gold'
@@ -320,6 +254,109 @@ class MultiColumnListbox(object):
         self.tree.tag_configure('salmon_bold', background='salmon', font=customfont)
         self.tree.tag_configure('LightBlue3_bold', background='LightBlue3', font=customfont)
 
+    def undo_player(self, team):
+        selected_player = self.team_trees[team].item(self.team_trees[team].selection())['values']
+        self.team_trees[team].delete(self.team_trees[team].selection())
+
+        if team == my_draft_position:
+            my_team_list = self.my_team.get_children()
+            for row in my_team_list:
+                if self.my_team.item(row)['values'][1] == selected_player[0]:
+                    if self.my_team.item(row)['values'][3].startswith('RB'):
+                        my_rb_byes.remove(self.my_team.item(row)['values'][4])
+                    if self.my_team.item(row)['values'][3].startswith('WR'):
+                        my_wr_byes.remove(self.my_team.item(row)['values'][4])
+                    self.my_team.delete(row)
+
+
+        # grabbing all values for player we will be re-inserting into the available player tree view
+        i = 0
+        for player in all:
+            if selected_player[0] == player[1]:
+                insert_player = all[i]
+            else:
+                i = i + 1
+
+        self.insert_into_available_all(insert_player)
+        self.insert_into_available_pos(insert_player)
+
+    def insert_into_available_all(self, insert_player):
+        # find the correct index to insert the player into
+        j = 0
+        j = 0
+        for player in available_all:
+            if insert_player[0] < player[0]:
+                available_all.insert(j, insert_player)
+                self.show_available(available_all)
+                return
+            else:
+                j = j + 1
+
+    def insert_into_available_pos(self, insert_player):
+        idx = 0
+        if insert_player[3].startswith('QB'):
+            for player in available_qb:
+                if insert_player[0] < player[0]:
+                    available_qb.insert(idx, insert_player)
+                    self.show_available(all)
+                    return
+                else:
+                    idx = idx + 1
+
+        if insert_player[3].startswith('RB'):
+            for player in available_rb:
+                if insert_player[0] < player[0]:
+                    available_rb.insert(idx, insert_player)
+                    self.show_available(available_all)
+                    self.insert_into_available_flex(insert_player)
+                    return
+                else:
+                    idx = idx + 1
+
+        if insert_player[3].startswith('WR'):
+            for player in available_wr:
+                if insert_player[0] < player[0]:
+                    available_wr.insert(idx, insert_player)
+                    self.show_available(available_all)
+                    self.insert_into_available_flex(insert_player)
+                    return
+                else:
+                    idx = idx + 1
+
+        if insert_player[3].startswith('TE'):
+            for player in available_te:
+                if insert_player[0] < player[0]:
+                    available_te.insert(idx, insert_player)
+                    self.show_available(available_te)
+                    self.insert_into_available_flex(insert_player)
+                    return
+                else:
+                    idx = idx + 1
+
+        if insert_player[3].startswith('TE'):
+            for player in available_qb:
+                if insert_player[0] < player[0]:
+                    available_qb.insert(idx, insert_player)
+                    self.show_available(available_qb)
+                    return
+                else:
+                    idx = idx + 1
+
+    def insert_into_available_flex(self, insert_player):
+        idx = 0
+        for player in available_flex:
+            if insert_player[0] < player[0]:
+                available_flex.insert(idx, insert_player)
+                self.show_available(available_all)
+                return
+            else:
+                idx = idx + 1
+
+    def fill(self, tree):
+        selected_player = self.tree.item(self.tree.selection())['values']
+
+        self.tag = self.set_color_tag(selected_player, False)
+        tree.insert('', 'end', selected_player, values=selected_player, tag=self.tag)
 
 def group_by_position(data):
     for row in data.itertuples():
